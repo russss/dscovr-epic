@@ -14,8 +14,9 @@ class EPIC(object):
         self.session = requests.Session()
 
     def get_images_for_date(self, date):
-        res = self.session.get(self.ENDPOINT + '/api/images.php?date=' + date.isoformat())
-        for row in res.json():
+        response = self.session.get(self.ENDPOINT + '/api/images.php?date=' + date.isoformat())
+        response.raise_for_status()
+        for row in response.json():
             row['coords'] = json.loads(row['coords'])
             row['date'] = dateutil.parser.parse(row['date'])
             yield row
@@ -43,7 +44,7 @@ class EPIC(object):
 
     def download_image(self, filename, fp):
         url = "%s/epic-archive/png/%s.png" % (self.ENDPOINT, filename)
-        response = requests.get(url, stream=True)
+        response = self.session.get(url, stream=True)
         response.raise_for_status()
         for chunk in response.iter_content(chunk_size=1024):
             if chunk:
