@@ -40,3 +40,4 @@ class EPIC(object):
         for chunk in response.iter_content(chunk_size=1024):
             if chunk:
                 fp.write(chunk)
+        fp.flush()
