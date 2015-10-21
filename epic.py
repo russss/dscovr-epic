@@ -33,6 +33,14 @@ class EPIC(object):
             date -= relativedelta(days=1)
         return sorted(images, key=lambda image: image['date'], reverse=True)[:count]
 
+    def get_image_range(self, since, until):
+        date = since
+        images = []
+        while date <= until:
+            images.extend(self.get_images_for_date(date))
+            date += relativedelta(days=1)
+        return sorted(images, key=lambda image: image['date'])
+
     def download_image(self, filename, fp):
         url = "%s/epic-archive/png/%s.png" % (self.ENDPOINT, filename)
         response = requests.get(url, stream=True)

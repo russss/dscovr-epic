@@ -7,11 +7,11 @@ import ConfigParser
 import tempfile
 import logging
 import pickle
-import subprocess
 import tweepy
 from tweepy.error import TweepError
 from geonames import GeoNamesGeocoder
 from epic import EPIC
+from processing import process_image
 
 
 def suffix(d):
@@ -33,7 +33,7 @@ class TweetEPIC(object):
         self.state = {'image_queue': {},
                       'last_posted_image': datetime(2015, 9, 1),
                       'last_post_time': datetime(2015, 9, 1)}
-        self.post_interval = timedelta(minutes=20)
+        self.post_interval = timedelta(minutes=60)
 
     def poll(self):
         try:
@@ -98,17 +98,7 @@ class TweetEPIC(object):
     def fetch_image(self, image, destfile):
         with tempfile.NamedTemporaryFile(suffix='.png') as downloadfile:
             self.epic.download_image(image['image'], downloadfile)
-            self.process_image(downloadfile.name, destfile.name)
-
-    def process_image(self, sourcefile, destfile):
-        self.log.info("Process %s -> %s", sourcefile, destfile)
-        subprocess.check_call(['convert',
-                               '-channel', 'RGB',
-                               '-contrast-stretch', '0.5%',
-                               '-modulate', '100,130,100',
-                               '-resize', '1500x1500',
-                               '-unsharp', '0x1',
-                               sourcefile, destfile])
+            process_image(downloadfile.name, destfile.name)
 
     def run(self):
         logging.basicConfig(level=logging.INFO)
