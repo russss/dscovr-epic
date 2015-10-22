@@ -61,6 +61,7 @@ class TweetEPIC(object):
                 self.do_tweet()
             except ConnectionError:
                 self.log.exception("Unable to fetch image file")
+            self.save_state()
 
     def do_tweet(self):
         image_date = sorted(self.state['image_queue'].keys())[0]
@@ -115,9 +116,12 @@ class TweetEPIC(object):
                 self.poll()
                 sleep(120)
         finally:
-            self.log.info("Saving state...")
-            with open("./state.pickle", "w") as f:
-                pickle.dump(self.state, f, pickle.HIGHEST_PROTOCOL)
+            self.save_state()
             self.log.info("Shut down.")
+
+    def save_state(self):
+        self.log.info("Saving state...")
+        with open("./state.pickle", "w") as f:
+            pickle.dump(self.state, f, pickle.HIGHEST_PROTOCOL)
 
 TweetEPIC().run()
