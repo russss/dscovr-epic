@@ -43,7 +43,7 @@ class TweetEPIC(object):
 
         try:
             images = self.epic.get_recent_images(most_recent, 20)
-        except ConnectionError:
+        except (ConnectionError, ValueError):
             self.log.exception("Unable to fetch images")
             images = []
 
