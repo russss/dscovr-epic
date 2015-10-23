@@ -57,7 +57,7 @@ class TweetEPIC(object):
             self.log.info("Added %s images to queue", added)
 
         if self.state['last_post_time'] < (datetime.now() - self.post_interval) \
-           and len(self.state['image_queue'] > 0):
+           and len(self.state['image_queue']) > 0:
             try:
                 self.do_tweet()
             except ConnectionError:
