@@ -33,7 +33,7 @@ class TweetEPIC(object):
         self.state = {'image_queue': {},
                       'last_posted_image': datetime(2015, 9, 1),
                       'last_post_time': datetime(2015, 9, 1)}
-        self.post_interval = timedelta(minutes=60)
+        self.post_interval = timedelta(minutes=80)
 
     def poll(self):
         try:
