@@ -26,7 +26,7 @@ class EPIC(object):
         images = []
         finished = False
         while len(images) < count and not finished:
-            for row in self.get_images_for_date(date):
+            for row in sorted(self.get_images_for_date(date), key=lambda image: image['date'], reverse=True):
                 if row['date'] <= since:
                     finished = True
                     break
