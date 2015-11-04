@@ -8,7 +8,9 @@ import datetime
 
 
 class EPIC(object):
+    """ A programmatic interface to the processed DSCOVR EPIC imagery. """
     ENDPOINT = 'http://epic.gsfc.nasa.gov'
+    EPOCH = datetime.datetime(2015, 6, 14)  # Date of first EPIC image
 
     def __init__(self):
         self.session = requests.Session()
@@ -21,18 +23,21 @@ class EPIC(object):
             row['date'] = dateutil.parser.parse(row['date'])
             yield row
 
-    def get_recent_images(self, since, count):
+    def get_recent_images(self, since, count=None, reverse=True):
         date = datetime.date.today()
         images = []
         finished = False
-        while len(images) < count and not finished:
+        while (count is None or len(images) < count) and not finished:
             for row in sorted(self.get_images_for_date(date), key=lambda image: image['date'], reverse=True):
-                if row['date'] <= since:
+                if row['date'] <= since or row['date'] <= self.EPOCH:
                     finished = True
                     break
                 images.append(row)
             date -= relativedelta(days=1)
-        return sorted(images, key=lambda image: image['date'], reverse=True)[:count]
+        images = sorted(images, key=lambda image: image['date'], reverse=reverse)
+        if count is not None:
+            images = images[:count]
+        return images
 
     def get_image_range(self, since, until):
         date = since
