@@ -36,7 +36,7 @@ class GeoNamesGeocoder(object):
         if radius is not None:
             params['range'] = radius
 
-        result = self.session.get('%s/extendedFindNearby' % self.ENDPOINT, params=params).content
+        result = self.session.get('%s/extendedFindNearby' % self.ENDPOINT, params=params, timeout=10).content
 
         data = lxml.etree.fromstring(result)
 
