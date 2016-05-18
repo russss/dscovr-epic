@@ -87,7 +87,7 @@ class TweetEPIC(object):
         if geocoded[0] is not None:
             place = " ".join(geocoded)
 
-        datestring = "%s %s%s" % (image['date'].strftime("%H:%M on %B"),
+        datestring = "%s %s%s" % (image['date'].strftime("%H:%M on %A %B"),
                                   image['date'].day, suffix(image['date'].day))
 
         if geocoded[0] is not None:
