@@ -37,7 +37,6 @@ class GeoNamesGeocoder(object):
             params['range'] = radius
 
         result = self.session.get('%s/extendedFindNearby' % self.ENDPOINT, params=params, timeout=10).content
-
         data = lxml.etree.fromstring(result)
 
         error = data.find('status')
@@ -47,7 +46,7 @@ class GeoNamesGeocoder(object):
                 # In some areas of the world, geonames restricts our radius, so try without.
                 return self.find_nearby(latitude, longitude, radius=None)
             elif value == '15':
-                return ''
+                return None
             elif value == '19':
                 print("Hourly rate limit exceeded. Sleeping for 5mins.")
                 sleep(300)
