@@ -46,6 +46,8 @@ class GeoNamesGeocoder(object):
             if value == '24' and radius > 1:
                 # In some areas of the world, geonames restricts our radius, so try without.
                 return self.find_nearby(latitude, longitude, radius=None)
+            elif value == '15':
+                return ''
             elif value == '19':
                 print("Hourly rate limit exceeded. Sleeping for 5mins.")
                 sleep(300)
