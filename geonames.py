@@ -23,8 +23,10 @@ class GeoNamesGeocoder(object):
         elif data.find('country') is not None:
             # No populated places nearby, but we have a country
             country_name = data.find('countryName').text
-        elif data.find('address') is not None:
+        elif data.find('address') is not None and data.find('address/countryName') is not None:
             country_name = data.find('address/countryName').text
+        elif data.find('address') is not None and data.find('address/adminName1') is not None:
+            country_name = data.find('address/adminName1').text
         elif len(data.findall('geoname')) > 0:
             continent_node = data.findall('geoname')[1]
             country_name = continent_node.find('name').text
@@ -37,6 +39,7 @@ class GeoNamesGeocoder(object):
             params['range'] = radius
 
         result = self.session.get('%s/extendedFindNearby' % self.ENDPOINT, params=params, timeout=10).content
+        print(result)
         data = lxml.etree.fromstring(result)
 
         error = data.find('status')
