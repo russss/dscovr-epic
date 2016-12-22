@@ -19,7 +19,7 @@ class EPIC(object):
         response = self.session.get(self.ENDPOINT + '/api/images.php?date=' + date.isoformat(), timeout=10)
         response.raise_for_status()
         for row in response.json():
-            row['coords'] = json.loads(row['coords'])
+            row['coords'] = json.loads(row['centroid_coordinates'])
             row['date'] = dateutil.parser.parse(row['date'])
             yield row
 

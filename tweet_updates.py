@@ -78,8 +78,8 @@ class TweetEPIC(object):
         self.log.info("One image tweeted, %s left in queue", len(self.state['image_queue']))
 
     def post_tweet(self, image, imagefile):
-        lat = image['coords']['centroid_coordinates']['lat']
-        lon = image['coords']['centroid_coordinates']['lon']
+        lat = image['coords']['lat']
+        lon = image['coords']['lon']
         self.log.info("Geocoding %s, %s", lat, lon)
 
         geocoded = self.geocoder.geocode(lat, lon)
