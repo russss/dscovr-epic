@@ -15,7 +15,7 @@ class EPIC(object):
         self.session = requests.Session()
 
     def get_images_for_date(self, date):
-        response = self.session.get(self.ENDPOINT + '/api/images.php?date=' + date.isoformat(), timeout=10)
+        response = self.session.get(self.ENDPOINT + '/api/natural/date/' + date.isoformat(), timeout=10)
         response.raise_for_status()
         for row in response.json():
             row['date'] = dateutil.parser.parse(row['date'])
