@@ -1,6 +1,5 @@
 # coding=utf-8
 from __future__ import division, absolute_import, print_function, unicode_literals
-import json
 import dateutil.parser
 from dateutil.relativedelta import relativedelta
 import requests
@@ -19,7 +18,6 @@ class EPIC(object):
         response = self.session.get(self.ENDPOINT + '/api/images.php?date=' + date.isoformat(), timeout=10)
         response.raise_for_status()
         for row in response.json():
-            row['coords'] = json.loads(row['centroid_coordinates'])
             row['date'] = dateutil.parser.parse(row['date'])
             yield row
 
