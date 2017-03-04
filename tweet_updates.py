@@ -55,7 +55,18 @@ class TweetEPIC(object):
         if added > 0:
             self.log.info("Added %s images to queue", added)
 
-        if self.state['last_post_time'] < (datetime.now() - self.post_interval) \
+        if len(self.state['image_queue']) > 20:
+            to_drop = len(self.state['image_queue']) - 12
+            self.log.info("Dropping %s images from queue", to_drop)
+            for key in sorted(self.state['image_queue'])[0:to_drop]:
+                del self.state['image_queue'][key]
+
+        if len(self.state['image_queue']) > 12:
+            interval = timedelta(minutes=45)
+        else:
+            interval = self.post_interval
+
+        if self.state['last_post_time'] < (datetime.now() - interval) \
            and len(self.state['image_queue']) > 0:
             try:
                 self.do_tweet()
