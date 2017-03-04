@@ -56,7 +56,7 @@ class TweetEPIC(object):
             self.log.info("Added %s images to queue", added)
 
         if len(self.state['image_queue']) > 20:
-            to_drop = len(self.state['image_queue']) - 12
+            to_drop = len(self.state['image_queue']) - 20
             self.log.info("Dropping %s images from queue", to_drop)
             for key in sorted(self.state['image_queue'])[0:to_drop]:
                 del self.state['image_queue'][key]
