@@ -39,7 +39,6 @@ class GeoNamesGeocoder(object):
             params['range'] = radius
 
         result = self.session.get('%s/extendedFindNearby' % self.ENDPOINT, params=params, timeout=10).content
-        print(result)
         data = lxml.etree.fromstring(result)
 
         error = data.find('status')

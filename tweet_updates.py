@@ -3,11 +3,12 @@ from __future__ import division, absolute_import, print_function, unicode_litera
 from time import sleep
 from datetime import datetime, timedelta
 from requests.exceptions import ConnectionError
-import ConfigParser
+import configparser
 import tempfile
 import logging
 import pickle
 import tweepy
+from mastodon import Mastodon
 from geonames import GeoNamesGeocoder
 from epic import EPIC
 from processing import process_image
@@ -20,19 +21,23 @@ def suffix(d):
 class TweetEPIC(object):
     def __init__(self):
         self.log = logging.getLogger(__name__)
-        self.config = ConfigParser.ConfigParser()
+        self.config = configparser.ConfigParser()
         self.config.read('epictweet.conf')
         auth = tweepy.OAuthHandler(self.config.get('twitter', 'api_key'),
                                    self.config.get('twitter', 'api_secret'))
         auth.set_access_token(self.config.get('twitter', 'access_key'),
                               self.config.get('twitter', 'access_secret'))
         self.twitter = tweepy.API(auth)
+        self.mastodon = Mastodon(client_id='clientcred.txt',
+                                 access_token='usercred.txt',
+                                 api_base_url='https://botsin.space')
         self.epic = EPIC()
         self.geocoder = GeoNamesGeocoder()
         self.state = {'image_queue': {},
                       'last_posted_image': datetime(2015, 9, 1),
                       'last_post_time': datetime(2015, 9, 1)}
         self.post_interval = timedelta(minutes=60)
+        self.post_interval_fast = timedelta(minutes=45)
 
     def poll(self):
         try:
@@ -62,7 +67,7 @@ class TweetEPIC(object):
                 del self.state['image_queue'][key]
 
         if len(self.state['image_queue']) > 12:
-            interval = timedelta(minutes=45)
+            interval = self.post_interval_fast
         else:
             interval = self.post_interval
 
@@ -104,8 +109,14 @@ class TweetEPIC(object):
             text = "%s, %s" % (datestring, place)
         else:
             text = datestring
-        self.twitter.update_with_media(imagefile.name, file=imagefile, status=text,
-                                       lat=lat, long=lon)
+        self.log.info("Tweeting with text '%s'", text)
+        #self.twitter.update_with_media(imagefile.name, file=imagefile, status=text,
+        #                               lat=lat, long=lon)
+        self.toot(imagefile.name, text)
+
+    def toot(self, image_file, status):
+        media = self.mastodon.media_post(image_file)
+        self.mastodon.status_post(status, media_ids=[media])
 
     def fetch_image(self, image, destfile):
         with tempfile.NamedTemporaryFile(suffix='.png') as downloadfile:
@@ -116,7 +127,7 @@ class TweetEPIC(object):
         logging.basicConfig(level=logging.INFO)
 
         try:
-            with open("./state.pickle", "r") as f:
+            with open("./state.pickle", "rb") as f:
                 self.state = pickle.load(f)
         except IOError:
             self.log.exception("Failure loading state file, resetting")
@@ -132,7 +143,8 @@ class TweetEPIC(object):
 
     def save_state(self):
         self.log.info("Saving state...")
-        with open("./state.pickle", "w") as f:
+        with open("./state.pickle", "wb") as f:
             pickle.dump(self.state, f, pickle.HIGHEST_PROTOCOL)
+
 
 TweetEPIC().run()
