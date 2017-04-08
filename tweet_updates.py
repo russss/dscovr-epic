@@ -15,6 +15,8 @@ def suffix(d):
 class TweetEPIC(Bot):
     def __init__(self):
         super().__init__('tweet_epic')
+        self.parser.add_argument('--now', action='store_true',
+                                 help="Tweet the next image now")
         self.epic = EPIC()
         self.geocoder = GeoNamesGeocoder()
         self.state = {'image_queue': {},
@@ -101,6 +103,8 @@ class TweetEPIC(Bot):
             process_image(downloadfile.name, destfile.name)
 
     def main(self):
+        if self.args.now:
+            self.state['last_post_time'] = datetime(2015, 9, 1)
         while True:
             self.poll()
             sleep(120)
