@@ -1,14 +1,8 @@
-# coding=utf-8
-from __future__ import division, absolute_import, print_function, unicode_literals
 from time import sleep
 from datetime import datetime, timedelta
 from requests.exceptions import ConnectionError
-import configparser
+from polybot import Bot
 import tempfile
-import logging
-import pickle
-import tweepy
-from mastodon import Mastodon
 from geonames import GeoNamesGeocoder
 from epic import EPIC
 from processing import process_image
@@ -18,19 +12,9 @@ def suffix(d):
     return 'th' if 11 <= d <= 13 else {1: 'st', 2: 'nd', 3: 'rd'}.get(d % 10, 'th')
 
 
-class TweetEPIC(object):
+class TweetEPIC(Bot):
     def __init__(self):
-        self.log = logging.getLogger(__name__)
-        self.config = configparser.ConfigParser()
-        self.config.read('epictweet.conf')
-        auth = tweepy.OAuthHandler(self.config.get('twitter', 'api_key'),
-                                   self.config.get('twitter', 'api_secret'))
-        auth.set_access_token(self.config.get('twitter', 'access_key'),
-                              self.config.get('twitter', 'access_secret'))
-        self.twitter = tweepy.API(auth)
-        self.mastodon = Mastodon(client_id='clientcred.txt',
-                                 access_token='usercred.txt',
-                                 api_base_url='https://botsin.space')
+        super().__init__('tweet_epic')
         self.epic = EPIC()
         self.geocoder = GeoNamesGeocoder()
         self.state = {'image_queue': {},
@@ -109,42 +93,17 @@ class TweetEPIC(object):
             text = "%s, %s" % (datestring, place)
         else:
             text = datestring
-        self.log.info("Tweeting with text '%s'", text)
-        self.twitter.update_with_media(imagefile.name, file=imagefile, status=text,
-                                       lat=lat, long=lon)
-        self.toot(imagefile.name, text)
-
-    def toot(self, image_file, status):
-        media = self.mastodon.media_post(image_file)
-        self.mastodon.status_post(status, media_ids=[media])
+        self.post(text, imagefile, lat, lon)
 
     def fetch_image(self, image, destfile):
         with tempfile.NamedTemporaryFile(suffix='.png') as downloadfile:
             self.epic.download_image(image['image'], downloadfile)
             process_image(downloadfile.name, destfile.name)
 
-    def run(self):
-        logging.basicConfig(level=logging.INFO)
-
-        try:
-            with open("./state.pickle", "rb") as f:
-                self.state = pickle.load(f)
-        except IOError:
-            self.log.exception("Failure loading state file, resetting")
-
-        self.log.info("Running")
-        try:
-            while True:
-                self.poll()
-                sleep(120)
-        finally:
-            self.save_state()
-            self.log.info("Shut down.")
-
-    def save_state(self):
-        self.log.info("Saving state...")
-        with open("./state.pickle", "wb") as f:
-            pickle.dump(self.state, f, pickle.HIGHEST_PROTOCOL)
+    def main(self):
+        while True:
+            self.poll()
+            sleep(120)
 
 
 TweetEPIC().run()
