@@ -110,8 +110,8 @@ class TweetEPIC(object):
         else:
             text = datestring
         self.log.info("Tweeting with text '%s'", text)
-        #self.twitter.update_with_media(imagefile.name, file=imagefile, status=text,
-        #                               lat=lat, long=lon)
+        self.twitter.update_with_media(imagefile.name, file=imagefile, status=text,
+                                       lat=lat, long=lon)
         self.toot(imagefile.name, text)
 
     def toot(self, image_file, status):
