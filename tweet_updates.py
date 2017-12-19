@@ -1,6 +1,6 @@
 from time import sleep
 from datetime import datetime, timedelta
-from requests.exceptions import ConnectionError
+from requests.exceptions import ConnectionError, HTTPError
 from polybot import Bot
 import tempfile
 from geonames import GeoNamesGeocoder
@@ -71,8 +71,11 @@ class TweetEPIC(Bot):
         self.log.info("Tweeting an image")
 
         with tempfile.NamedTemporaryFile(suffix='.png') as imagefile:
-            self.fetch_image(image, imagefile)
-            self.post_tweet(image, imagefile)
+            try:
+                self.fetch_image(image, imagefile)
+                self.post_tweet(image, imagefile)
+            except HTTPError:
+                self.log.exception("Error downloading image: %s", image['image'])
 
         del self.state['image_queue'][image_date]
         self.state['last_posted_image'] = image_date
