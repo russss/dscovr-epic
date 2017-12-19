@@ -47,9 +47,9 @@ class EPIC(object):
 
     def download_image(self, image, fp):
         url = "%s/archive/natural/%d/%02d/%02d/png/%s.png" % (self.ENDPOINT,
-                                                              image['date'].year(),
-                                                              image['date'].month(),
-                                                              image['date'].day(),
+                                                              image['date'].year,
+                                                              image['date'].month,
+                                                              image['date'].day,
                                                               image['image'])
         response = self.session.get(url, stream=True, timeout=10)
         response.raise_for_status()
