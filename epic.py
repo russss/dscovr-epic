@@ -45,8 +45,12 @@ class EPIC(object):
             date += relativedelta(days=1)
         return sorted(images, key=lambda image: image['date'])
 
-    def download_image(self, filename, fp):
-        url = "%s/epic-archive/png/%s.png" % (self.ENDPOINT, filename)
+    def download_image(self, image, fp):
+        url = "%s/archive/natural/%d/%02d/%02d/png/%s.png" % (self.ENDPOINT,
+                                                              image['date'].year(),
+                                                              image['date'].month(),
+                                                              image['date'].day(),
+                                                              image['image'])
         response = self.session.get(url, stream=True, timeout=10)
         response.raise_for_status()
         for chunk in response.iter_content(chunk_size=1024):
