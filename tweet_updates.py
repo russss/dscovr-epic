@@ -95,7 +95,7 @@ class TweetEPIC(Bot):
             text = "%s, %s" % (datestring, place)
         else:
             text = datestring
-        self.post(text, imagefile, lat, lon)
+        self.post(text, imagefile=imagefile, lat=lat, lon=lon)
 
     def fetch_image(self, image, destfile):
         with tempfile.NamedTemporaryFile(suffix='.png') as downloadfile:
