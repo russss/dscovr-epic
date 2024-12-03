@@ -58,5 +58,6 @@ docs/_build/
 # PyBuilder
 target/
 
-epictweet.conf
 *.pickle
+*.conf
+*.state

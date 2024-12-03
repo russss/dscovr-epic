@@ -1,0 +1,7 @@
+[project]
+name = "tweet"
+version = "0.1.0"
+description = "Add your description here"
+readme = "README.md"
+requires-python = "==3.12.*"
+dependencies = ["lxml>=5.3.0", "polybot==0.9.0"]
